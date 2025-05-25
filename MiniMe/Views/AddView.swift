@@ -12,7 +12,7 @@ struct AddView: View {
     // go back 1 on view higharchy
     @Environment(\.presentationMode) var presentationMode
     
-    @EnvironmentObject var listViewModel: ListViewModel
+    @EnvironmentObject var taskViewModel: TaskViewModel
     @State var textFieldText: String = ""
     
     @State var alertTitle: String = ""
@@ -48,7 +48,7 @@ struct AddView: View {
     func saveButtonPressed() {
         // if true (don't have to add == true)
         if textIsAppropriate(){
-            listViewModel.addItem(title: textFieldText)
+            taskViewModel.addTask(title: textFieldText)
             // go back 1 on view higharchy
             presentationMode.wrappedValue.dismiss()
         }
@@ -76,14 +76,14 @@ struct AddView_Previews: PreviewProvider {
                 AddView()
             }
             .preferredColorScheme(.light)
-            .environmentObject(ListViewModel())
+            .environmentObject(TaskViewModel())
             NavigationView {
                 AddView()
                    
                 
             }
             .preferredColorScheme(.dark)
-            .environmentObject(ListViewModel())
+            .environmentObject(TaskViewModel())
         }
     }
 }

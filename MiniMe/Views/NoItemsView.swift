@@ -16,7 +16,6 @@ struct NoItemsView: View {
     var body: some View {
         // content to top and full height
         ScrollView {
-            
             VStack {
                 Text("There are no items!")
                     .font(.title)
