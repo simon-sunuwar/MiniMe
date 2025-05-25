@@ -17,15 +17,15 @@ import SwiftUI
 @main
 struct MiniMeApp: App {
     
-    @StateObject var listViewModel: ListViewModel = ListViewModel()
+    @StateObject var taskViewModel: TaskViewModel = TaskViewModel()
     
     var body: some Scene {
         WindowGroup {
             NavigationView {
-                ListView()
+                HomeViewModel()
             }
             .navigationViewStyle(StackNavigationViewStyle())
-            .environmentObject(listViewModel)   // has acces to ListViewModel
+            .environmentObject(taskViewModel)   // has acces to ListViewModel
         }
     }
 }
