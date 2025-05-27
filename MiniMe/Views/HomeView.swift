@@ -9,89 +9,89 @@ import SwiftUI
 
 struct HomeViewModel: View {
     @EnvironmentObject var taskViewModel: TaskViewModel
+    @State private var showMenu = false
     
     var body: some View {
         NavigationStack {
-            VStack {
-
-                Text("Home")
-                    .font(.title)
-                    .bold()
-                
-                // Top Avatar Placeholder
-                VStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 300)
-                        .overlay(Text("Avatar Placeholder"))
-                }
-                
-                Text("Tasks")
-                    .font(.title)
-                    .bold()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                
-                // Task Menu
-                ZStack {
-                    VStack {
-                                if taskViewModel.tasks.isEmpty {
-                                    NoItemsView()
-                                } else {
-                                    // Incomplete section
-                                    Text("To Do")
-                                        .font(.headline)
-                                    List {
-                                        ForEach(taskViewModel.activeTasks) { task in
-                                            TaskRowView(task: task)
-                                                .onTapGesture {
-                                                    withAnimation {
-                                                        taskViewModel.toggleCompleteTask(task: task)
-                                                    }
+            ZStack {
+                // Home Content
+                VStack(spacing: 0) {
+                    ScrollView { // Optional, useful if content may overflow
+                        VStack(alignment: .leading, spacing: 20) {
+                            Text("Home")
+                                .font(.title)
+                                .bold()
+                            
+                            // Avatar
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.gray.opacity(0.3))
+                                .frame(height: 300)
+                                .overlay(Text("Avatar Placeholder"))
+                            
+                            // Tasks
+                            Text("Tasks")
+                                .font(.title)
+                                .bold()
+                            
+                            if taskViewModel.activeTasks.isEmpty {
+                                NoItemsView()
+                            } else {
+                                List {
+                                    ForEach(taskViewModel.activeTasks) { task in
+                                        TaskRowView(task: task)
+                                            .onTapGesture {
+                                                withAnimation {
+                                                    taskViewModel.toggleCompleteTask(task: task)
                                                 }
-                                        }
-                                        .onDelete(perform: taskViewModel.deleteTask)
-                                        .onMove(perform: taskViewModel.moveTask)
+                                            }
                                     }
-
-                                    // Completed section
-                                    Text("Completed")
-                                        .font(.headline)
-                                    List {
-                                        ForEach(taskViewModel.completedTasks) { task in
-                                            TaskRowView(task: task)
-                                                .onTapGesture {
-                                                    withAnimation {
-                                                        taskViewModel.toggleCompleteTask(task: task)
-                                                    }
-                                                }
-                                        }
-                                    }
+                                    .onDelete(perform: taskViewModel.deleteTask)
+                                    .onMove(perform: taskViewModel.moveTask)
                                 }
+                                .frame(height: 200) // Adjust as needed
                             }
-                }
-                             
-
-                // Bottom Navigation Button
-                Button(action: {
-                    // Open nav menu
-                    print("Open nav menu")
-                }) {
-                    HStack {
-                        Image(systemName: "line.horizontal.3")
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 80) // Space for bottom bar
                     }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
+                }
+                
+                // Navigation bar
+                VStack {
+                    Spacer()
+                    Button(action: {
+                        withAnimation {
+                            showMenu.toggle()
+                        }
+                    }) {
+                        Text("☰ Menu")
+                            .bold()
+                            .font(.title2)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                    }
+                }
+                .ignoresSafeArea(edges: .bottom)
+                .zIndex(2)
+                
+                // Side Menu
+                if showMenu {
+                    // Dim background
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation {
+                                showMenu = false
+                            }
+                        }
+                    
+                    // Side menu
+                    SideMenuView(showMenu: $showMenu)
+                        .zIndex(1)
                 }
             }
-            .padding(.horizontal)
-            
-//            .navigationTitle("Home")
-//            .navigationBarTitleDisplayMode(.inline)
-//            .toolbarBackground(Color.white, for: .navigationBar)
-//            .toolbarBackground(.visible, for: .navigationBar)
         }
     }
 }
