@@ -16,16 +16,14 @@ import SwiftUI
 
 @main
 struct MiniMeApp: App {
-    
-    @StateObject var taskViewModel: TaskViewModel = TaskViewModel()
+    @StateObject private var taskViewModel: TaskViewModel = TaskViewModel()
+    @StateObject private var router = NavigationRouter()
     
     var body: some Scene {
         WindowGroup {
-            NavigationView {
-                HomeViewModel()
-            }
-            .navigationViewStyle(StackNavigationViewStyle())
-            .environmentObject(taskViewModel)   // has acces to ListViewModel
+            RootView()
+                .environmentObject(router)
+                .environmentObject(taskViewModel)
         }
     }
 }

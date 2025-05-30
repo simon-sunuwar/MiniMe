@@ -1,15 +1,10 @@
-//
-//  HomeViewModel.swift
-//  MiniMe
-//
-//  Created by Simon on 2025-05-15.
-//
 
 import SwiftUI
 
-struct HomeViewModel: View {
+struct HomeView: View {
     @EnvironmentObject var taskViewModel: TaskViewModel
     @State private var showMenu = false
+    @State var selectedTab: Tab = .home
     
     var body: some View {
         NavigationStack {
@@ -55,48 +50,12 @@ struct HomeViewModel: View {
                         .padding(.bottom, 80) // Space for bottom bar
                     }
                 }
-                
-                // Navigation bar
-                VStack {
-                    Spacer()
-                    Button(action: {
-                        withAnimation {
-                            showMenu.toggle()
-                        }
-                    }) {
-                        Text("☰ Menu")
-                            .bold()
-                            .font(.title2)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                    }
-                }
-                .ignoresSafeArea(edges: .bottom)
-                .zIndex(2)
-                
-                // Side Menu
-                if showMenu {
-                    // Dim background
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation {
-                                showMenu = false
-                            }
-                        }
-                    
-                    // Side menu
-                    SideMenuView(showMenu: $showMenu)
-                        .zIndex(1)
-                }
             }
         }
     }
 }
 
 #Preview {
-    HomeViewModel()
+    HomeView()
         .environmentObject(TaskViewModel())
 }
