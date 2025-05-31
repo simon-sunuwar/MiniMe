@@ -10,6 +10,7 @@ import SwiftUI
 enum TabViewEnum: Int, CaseIterable, Identifiable {
     case home
     case completedList
+    case calendar
     case tabMenu
 
     var id: Int { rawValue }
@@ -18,6 +19,7 @@ enum TabViewEnum: Int, CaseIterable, Identifiable {
         switch self {
         case .home: return "Home"
         case .completedList: return "Completed"
+        case .calendar: return "Calendar"
         case .tabMenu: return ""
         }
     }
@@ -26,6 +28,7 @@ enum TabViewEnum: Int, CaseIterable, Identifiable {
         switch self {
         case .home: return "house"
         case .completedList: return "checkmark.circle"
+        case .calendar: return "calendar"
         case .tabMenu: return "line.horizontal.3"
         }
     }
@@ -33,12 +36,10 @@ enum TabViewEnum: Int, CaseIterable, Identifiable {
     @ViewBuilder
     var view: some View {
         switch self {
-        case .home:
-            HomeView()
-        case .completedList:
-            CompletedListView()
-        case .tabMenu:
-            EmptyView()
+        case .home:             HomeView()
+        case .completedList:    CompletedListView()
+        case .calendar:         CalendarView()
+        case .tabMenu:          EmptyView()
         }
     }
 }
