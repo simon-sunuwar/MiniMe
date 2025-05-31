@@ -12,12 +12,12 @@ struct RootView: View {
                     HomeView()
                 case .completedList:
                     CompletedListView()
+                case .calendar:
+                    CalendarView()
                 default:
                     EmptyView()
                 }
             }
-            
-            
             
             // Sidebar
             VStack {
