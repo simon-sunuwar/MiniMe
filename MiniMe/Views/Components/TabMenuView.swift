@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TabBarMenuView: View {
+struct TabMenuView: View {
     var body: some View {
         VStack(spacing: 20) {
             NavigationLink(destination: CompletedListView()) {
@@ -19,5 +19,5 @@ struct TabBarMenuView: View {
 }
 
 #Preview {
-    TabBarMenuView()
+    TabMenuView()
 }

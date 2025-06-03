@@ -10,7 +10,7 @@ struct RootView: View {
 
     var body: some View {
         ZStack {
-            // Main content based on selected tab
+            // Main Content Route
             Group {
                 switch router.selectedTab {
                 case .home: HomeView()
@@ -19,7 +19,7 @@ struct RootView: View {
                 default: EmptyView()
                 }
                 
-                // ✅ Task Input Bar that moves with keyboard
+                // Task Input Bar
                 if showTaskInputBar {
                     ZStack {
                         // Transparent tap area to dismiss
@@ -28,8 +28,6 @@ struct RootView: View {
                             .onTapGesture {
                                 showTaskInputBar = false
                             }
-
-                        // Task input bar anchored at bottom
                         VStack {
                             Spacer()
                             TaskInputBar(
@@ -44,7 +42,7 @@ struct RootView: View {
                     .zIndex(3)
                 }
                 
-                // ✅ Fixed-bottom layer that ignores keyboard
+                // Floating Add Button
                 VStack {
                     Spacer()
                     HStack {
@@ -58,29 +56,30 @@ struct RootView: View {
                         .padding(.trailing, 24)
                         .padding(.bottom, 10) // above tab bar
                     }
-                    
-                    // Tab Bar
                     tabBar
                 }
-                .ignoresSafeArea(.keyboard, edges: .bottom) // ✅ Only this layer ignores keyboard
+                .ignoresSafeArea(.keyboard, edges: .bottom)
                 .zIndex(2)
                 
                 // Tab menu overlay (if any)
                 if router.isTabMenuVisible {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            router.isTabMenuVisible = false
-                        }
-                        .zIndex(1)
+                    Rectangle()
+                               .fill(.ultraThinMaterial)
+                               .ignoresSafeArea()
+                               .onTapGesture {
+                                   withAnimation {
+                                       router.isTabMenuVisible = false
+                                   }
+                               }
+                               
                     
                     VStack {
                         Spacer()
-                        TabBarMenuView()
-                            .transition(.move(edge: .bottom))
-                            .padding(.bottom, 65)
-                            .animation(.easeInOut(duration: 0.3), value: router.isTabMenuVisible)
+                        TabMenuView()
                     }
+                        .transition(.move(edge: .bottom))
+                        .padding(.bottom, 65)
+                        .animation(.easeInOut(duration: 0.3), value: router.isTabMenuVisible)
                 }
             }
             
