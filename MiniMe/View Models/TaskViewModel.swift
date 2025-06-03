@@ -1,8 +1,4 @@
-//
-//  ListViewModel.swift
-//  MiniMe
-//
-//  Created by Simon on 2025-05-08.
+
 //
 
 import Foundation

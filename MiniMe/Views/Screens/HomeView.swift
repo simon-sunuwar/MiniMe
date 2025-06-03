@@ -5,6 +5,7 @@ struct HomeView: View {
     @EnvironmentObject var taskViewModel: TaskViewModel
     @State private var showMenu = false
     @State var selectedTab: Tab = .home
+    @State private var newTaskTitle: String = ""
     
     var body: some View {
         NavigationStack {
@@ -29,7 +30,21 @@ struct HomeView: View {
                                 .bold()
                             
                             if taskViewModel.activeTasks.isEmpty {
-                                NoItemsView()
+                                
+                                Text("There are no active Tasks")
+                                
+//                                    NavigationLink(
+//                                        destination: AddView(),
+//                                        label: {
+//                                            Text("Add Task")
+//                                                .foregroundColor(.primary)
+//                                                .padding()
+//                                                .frame(width: 150)
+//                                                .background(Color.accentColor)
+//                                                .cornerRadius(10)
+//                                                .frame(maxWidth: .infinity)
+//                                        })
+                                
                             } else {
                                 List {
                                     ForEach(taskViewModel.activeTasks) { task in
