@@ -13,19 +13,23 @@ struct TaskModel: Identifiable, Codable {
     let id: String
     let title: String
     let isCompleted: Bool
-    let completedDate: Date?
+//    let completedDate: Date?
+    let parentId: String
     
     // 2 different ItemModel, one with ID and one creates with new task
-    init(id: String = UUID().uuidString , title: String, isCompleted: Bool, completedDate: Date? = nil) {
+    init(id: String = UUID().uuidString , title: String, isCompleted: Bool, completedDate: Date? = nil, parentId: String = UUID().uuidString){
         self.id = UUID().uuidString
         self.title = title
         self.isCompleted = isCompleted
-        self.completedDate = completedDate
+//        self.completedDate = completedDate
+        self.parentId = parentId
     }
     
     // let and not var, so the id, title, iscompleted is only updated with this func to avoid miss match titles.
     // have not called up this function yet still testing
+    // add date later
     func updateCompletion() -> TaskModel {
-        return TaskModel(id: id, title: title, isCompleted: !isCompleted, completedDate: isCompleted ? nil : Date())
+        return TaskModel(id: id, title: title, isCompleted: !isCompleted, parentId: parentId)
     }
 }
+

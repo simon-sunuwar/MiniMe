@@ -46,10 +46,8 @@ struct AddView: View {
     }
     
     func saveButtonPressed() {
-        // if true (don't have to add == true)
         if textIsAppropriate(){
             taskViewModel.addTask(title: textFieldText)
-            // go back 1 on view higharchy
             presentationMode.wrappedValue.dismiss()
         }
     }

@@ -8,28 +8,30 @@ import SwiftUI
 
 struct CompletedListView: View {
     @EnvironmentObject var taskViewModel: TaskViewModel
-    
+
     var body: some View {
-        VStack {
+        List {
             if taskViewModel.completedTasks.isEmpty {
-                Text("No tasks to show!")
+                Text("No completed tasks yet")
+                    .foregroundColor(.gray)
             } else {
-                Text("Completed")
-                    .font(.headline)
-                List {
-                    ForEach(taskViewModel.completedTasks) { task in
-                        TaskRowView(task: task)
-                            .onTapGesture {
-                                withAnimation {
-                                    taskViewModel.toggleCompleteTask(task: task)
-                                }
-                            }
+                ForEach(taskViewModel.completedTasks) { task in
+                    HStack {
+                        Text(task.title)
+                            .strikethrough()
+                            .foregroundColor(.secondary)
+                        Spacer()
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
                     }
+                    .padding(.vertical, 4)
                 }
             }
         }
+        .navigationTitle("Completed")
     }
 }
+
 
 #Preview {
     CompletedListView()

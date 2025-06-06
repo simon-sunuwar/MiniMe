@@ -1,28 +1,28 @@
-
-//
-
+// CRUD FUNCTIONS
 import Foundation
 
-/*
- CRUD FUNCTIONS
- 
- Create
- Read
- Update
- Delete
- 
- */
-
 class TaskViewModel: ObservableObject{
-    
-    // @Published render's data changes to view
     @Published var tasks: [TaskModel] = []{
-    // Data changes triggers function
         didSet{
             saveTasks()
         }
     }
     
+    init() { getTasks()}
+    let tasksKey = "tasks"
+    
+    // MARK: Create / Delete Task
+    func addTask(title: String) {
+        let newTask = TaskModel(title: title, isCompleted: false)
+        tasks.append(newTask)
+    }
+    
+    func deleteTask(indexSet: IndexSet) {
+        tasks.remove(atOffsets: indexSet)
+    }
+    
+    
+    // MARK: Task Status
     var activeTasks: [TaskModel] {
         tasks.filter{!$0.isCompleted}
     }
@@ -31,12 +31,20 @@ class TaskViewModel: ObservableObject{
         tasks.filter{$0.isCompleted}
     }
     
-    init() {
-        getTasks()
+    func toggleCompleteTask(task: TaskModel) {
+        if let index = tasks.firstIndex(where: { $0.id == task.id}) {
+            tasks[index] = task.updateCompletion()
+        }
     }
     
-    let tasksKey = "tasks"
-    
+//    func cleanOldCompletedTasks(olderThan days: Int = 1) {
+//        let cutoffDate = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
+//                tasks.removeAll { task in
+//                    task.isCompleted && (task.completedDate ?? Date()) < cutoffDate
+//                }
+//    }
+   
+    // MARK: Read/Save Task
     func getTasks() {
         guard
             let data = UserDefaults.standard.data(forKey: tasksKey),
@@ -45,24 +53,6 @@ class TaskViewModel: ObservableObject{
         self.tasks = savedItems
     }
     
-    func deleteTask(indexSet: IndexSet) {
-        tasks.remove(atOffsets: indexSet)
-    }
-    
-    func moveTask(from: IndexSet, to: Int) {
-        tasks.move(fromOffsets: from, toOffset: to)
-    }
-    
-    func addTask(title: String) {
-        let newTask = TaskModel(title: title, isCompleted: false)
-        tasks.append(newTask)
-    }
-    
-    func toggleCompleteTask(task: TaskModel) {
-        if let index = tasks.firstIndex(where: { $0.id == task.id}) {
-            tasks[index] = task.updateCompletion()
-        }
-    }
     
     func saveTasks() {
         if let encodedData = try? JSONEncoder().encode(tasks) {
@@ -70,10 +60,25 @@ class TaskViewModel: ObservableObject{
         }
     }
     
-    func cleanOldCompletedTasks(olderThan days: Int = 1) {
-        let cutoffDate = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
-                tasks.removeAll { task in
-                    task.isCompleted && (task.completedDate ?? Date()) < cutoffDate
-                }
+    // MARK: Modify/Update Task
+    func moveTask(from: IndexSet, to: Int) {
+        tasks.move(fromOffsets: from, toOffset: to)
+    }
+   
+    func editTask( updatedTask: TaskModel){
+        if let index = tasks.firstIndex(where: { $0.id == updatedTask.id}) {
+            tasks[index] = updatedTask
+        }
+    }
+}
+
+// MARK: Preview
+class PreviewTaskViewModel: TaskViewModel {
+    override init() {
+        super.init()
+        self.tasks = [
+            TaskModel(title: "First item!", isCompleted: false, parentId: "123"),
+            TaskModel(title: "Second item!", isCompleted: true, parentId: "123")
+        ]
     }
 }
