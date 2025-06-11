@@ -13,9 +13,10 @@ struct RootView: View {
             // Main Content Route
             Group {
                 switch router.selectedTab {
-                case .home: HomeView()
-                case .completedList: CompletedListView()
+                case .home: HomeScreen()
+//                case .completedList: CompletedListView()
                 case .calendar: CalendarView()
+                case .todolist: ToDoListScreen()
                 default: EmptyView()
                 }
                 
