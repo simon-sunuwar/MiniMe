@@ -29,30 +29,9 @@
 		F4BF17E62DC340CE002F151A /* MiniMeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MiniMeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		F4BF18102DCBF13A002F151A /* Exceptions for "MiniMe" folder in "MiniMe" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				MiniMeTests/MiniMeTests.swift,
-			);
-			target = F4BF17CE2DC340CD002F151A /* MiniMe */;
-		};
-		F4BF18112DCBF13A002F151A /* Exceptions for "MiniMe" folder in "MiniMeTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				MiniMeTests/MiniMeTests.swift,
-			);
-			target = F4BF17DB2DC340CE002F151A /* MiniMeTests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F4BF17D12DC340CD002F151A /* MiniMe */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				F4BF18102DCBF13A002F151A /* Exceptions for "MiniMe" folder in "MiniMe" target */,
-				F4BF18112DCBF13A002F151A /* Exceptions for "MiniMe" folder in "MiniMeTests" target */,
-			);
 			path = MiniMe;
 			sourceTree = "<group>";
 		};

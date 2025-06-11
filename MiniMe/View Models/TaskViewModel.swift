@@ -1,79 +1,77 @@
-
-//
-
 import Foundation
 
-/*
- CRUD FUNCTIONS
- 
- Create
- Read
- Update
- Delete
- 
- */
-
-class TaskViewModel: ObservableObject{
-    
-    // @Published render's data changes to view
-    @Published var tasks: [TaskModel] = []{
-    // Data changes triggers function
-        didSet{
+class TaskViewModel: ObservableObject {
+    @Published var tasks: [TaskModel] = [] {
+        didSet {
             saveTasks()
         }
     }
-    
-    var activeTasks: [TaskModel] {
-        tasks.filter{!$0.isCompleted}
-    }
-    
-    var completedTasks: [TaskModel] {
-        tasks.filter{$0.isCompleted}
-    }
-    
+
+    private let tasksKey = "tasks"
+
     init() {
         getTasks()
     }
-    
-    let tasksKey = "tasks"
-    
+
+    // MARK: - Load from Storage
     func getTasks() {
-        guard
-            let data = UserDefaults.standard.data(forKey: tasksKey),
-            let savedItems = try? JSONDecoder().decode([TaskModel].self, from: data)
-        else { return }
+        guard let data = UserDefaults.standard.data(forKey: tasksKey),
+              let savedItems = try? JSONDecoder().decode([TaskModel].self, from: data) else {
+            return
+        }
         self.tasks = savedItems
     }
-    
-    func deleteTask(indexSet: IndexSet) {
-        tasks.remove(atOffsets: indexSet)
+
+    // MARK: - Save to Storage
+    private func saveTasks() {
+        if let encoded = try? JSONEncoder().encode(tasks) {
+            UserDefaults.standard.set(encoded, forKey: tasksKey)
+        }
     }
-    
-    func moveTask(from: IndexSet, to: Int) {
-        tasks.move(fromOffsets: from, toOffset: to)
-    }
-    
+
+    // MARK: - Create
     func addTask(title: String) {
-        let newTask = TaskModel(title: title, isCompleted: false)
+        let newTask = TaskModel(title: title)
         tasks.append(newTask)
     }
-    
-    func toggleCompleteTask(task: TaskModel) {
-        if let index = tasks.firstIndex(where: { $0.id == task.id}) {
-            tasks[index] = task.updateCompletion()
+
+    // MARK: - Delete
+    func deleteTask(at indexSet: IndexSet) {
+        tasks.remove(atOffsets: indexSet)
+    }
+
+    // MARK: - Toggle Completion
+    func toggleComplete(task: TaskModel) {
+        if let index = tasks.firstIndex(where: { $0.id == task.id }) {
+            tasks[index] = task.copy(isCompleted: !task.isCompleted)
         }
     }
-    
-    func saveTasks() {
-        if let encodedData = try? JSONEncoder().encode(tasks) {
-            UserDefaults.standard.set(encodedData, forKey: tasksKey)
+
+    // MARK: - Edit Task
+    func updateTask(_ updatedTask: TaskModel) {
+        if let index = tasks.firstIndex(where: { $0.id == updatedTask.id }) {
+            tasks[index] = updatedTask
         }
     }
-    
-    func cleanOldCompletedTasks(olderThan days: Int = 1) {
-        let cutoffDate = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
-                tasks.removeAll { task in
-                    task.isCompleted && (task.completedDate ?? Date()) < cutoffDate
-                }
+
+    // MARK: - Reorder Tasks
+    func moveTask(fromOffsets: IndexSet, toOffset: Int) {
+        tasks.move(fromOffsets: fromOffsets, toOffset: toOffset)
+    }
+
+    // MARK: - Filtered Lists
+    var activeTasks: [TaskModel] {
+        tasks.filter { !$0.isCompleted }
+    }
+
+    var completedTasks: [TaskModel] {
+        tasks.filter { $0.isCompleted }
+    }
+
+    func tasks(for date: Date) -> [TaskModel] {
+        tasks.filter {
+            guard let taskDate = $0.scheduledDate else { return false }
+            return Calendar.current.isDate(taskDate, inSameDayAs: date)
+        }
     }
 }
