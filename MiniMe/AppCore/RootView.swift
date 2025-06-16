@@ -14,7 +14,6 @@ struct RootView: View {
             Group {
                 switch router.selectedTab {
                 case .home: HomeScreen()
-//                case .completedList: CompletedListView()
                 case .calendar: CalendarView()
                 case .todolist: ToDoListScreen()
                 default: EmptyView()
