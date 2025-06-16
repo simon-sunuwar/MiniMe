@@ -1,40 +1,50 @@
 import SwiftUI
 
 struct TaskListView: View {
-    @Binding var tasks: [TaskModel]
-    var showCompleted: Bool
-    var selectedDate: Date
-    @State private var focusedTaskID: UUID?
+    @EnvironmentObject var viewModel: TaskViewModel
+    var filter: TaskFilter
+    var allowsEditing: Bool = true
+
     @State private var newTaskTitle: String = ""
+    @FocusState private var isNewTaskFocused: Bool
+    @State private var selectedDate = Date()
 
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 8) {
-                // Filtered task rows
-                ForEach($tasks.filter { $task in
-                    if let date = $task.wrappedValue.scheduledDate {
-                        return Calendar.current.isDate(date, inSameDayAs: selectedDate)
-                            && (showCompleted ? $task.wrappedValue.isCompleted : !$task.wrappedValue.isCompleted)
-                    }
-                    return false
-                }) { $task in
-                    TaskRowView(task: $task, isFocused: focusedTaskID == $task.wrappedValue.id)
+                ForEach(viewModel.filteredTasks(using: filter)) { task in
+                    TaskRowView(
+                        task: task,
+                        isEditable: allowsEditing,
+                        onUpdate: viewModel.updateTask,
+                        onToggleComplete: viewModel.toggleTaskCompletion
+                    )
                 }
 
-                // Only show new task entry if NOT completed list
-                if !showCompleted {
+                if allowsEditing {
                     HStack {
-                        Image(systemName: "plus.circle")
-                            .foregroundColor(.blue)
-                        TextField("New Task", text: $newTaskTitle, onCommit: {
-                            let trimmed = newTaskTitle.trimmingCharacters(in: .whitespaces)
-                            if !trimmed.isEmpty {
-                                let newTask = TaskModel(title: trimmed, scheduledDate: selectedDate)
-                                tasks.append(newTask)
-                                newTaskTitle = ""
+                        TextField("New Task", text: $newTaskTitle)
+                            .focused($isNewTaskFocused)
+                            .onSubmit {
+                                let trimmed = newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+                                guard !trimmed.isEmpty else { return }
+                                viewModel.addTask(title: trimmed, date: selectedDate)
+                                newTaskTitle = "" // clear field
+                                isNewTaskFocused = true // optionally refocus
                             }
-                        })
-                        .textFieldStyle(.plain)
+                            .textFieldStyle(.plain)
+                            .submitLabel(.done)
+
+                        Button {
+                            let trimmed = newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+                            guard !trimmed.isEmpty else { return }
+                            viewModel.addTask(title: trimmed, date: selectedDate)
+                            newTaskTitle = ""
+                            isNewTaskFocused = true
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundColor(.blue)
+                        }
                     }
                     .padding(.vertical, 8)
                 }
@@ -43,3 +53,10 @@ struct TaskListView: View {
         }
     }
 }
+
+
+#Preview {
+    ToDoListScreen()
+        .environmentObject(TaskViewModel()) // Provide dummy model for testing
+}
+

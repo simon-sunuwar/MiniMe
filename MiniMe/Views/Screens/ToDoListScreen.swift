@@ -1,24 +1,47 @@
 import SwiftUI
 
 struct ToDoListScreen: View {
-    @StateObject private var viewModel = TaskViewModel()
     @State private var selectedDate: Date = Date()
 
     var body: some View {
-        VStack {
-            Text("TO DO LIST MF")
-            DatePicker("Select Date", selection: $selectedDate, displayedComponents: [.date])
-                .datePickerStyle(.compact)
-                .padding()
+        VStack(spacing: 16) {
+            // MARK: Date Picker
+            DatePicker(
+                "Select Date",
+                selection: $selectedDate,
+                displayedComponents: [.date]
+            )
+            .datePickerStyle(.compact)
+            .padding(.horizontal)
 
-            TaskListView(tasks: $viewModel.tasks, showCompleted: false, selectedDate: selectedDate)
-            
+            // MARK: Tasks for Selected Date
+            TaskListView(
+                filter: .custom { task in
+                        guard let date = task.scheduledDate else { return false }
+                        return Calendar.current.isDate(date, inSameDayAs: selectedDate) && !task.isCompleted
+                    },
+                allowsEditing: true
+            )
+
+            // MARK: Completed Tasks
             Text("Completed")
-            
-            TaskListView(tasks: $viewModel.tasks, showCompleted: true, selectedDate: selectedDate)
+                .font(.headline)
+                .padding(.top)
+
+            TaskListView(
+                filter: .completed(for: selectedDate),
+                allowsEditing: false
+            )
         }
     }
 }
+
+#Preview {
+    ToDoListScreen()
+        .environmentObject(TaskViewModel())
+}
+
+
 
 #Preview {
     ToDoListScreen()

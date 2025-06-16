@@ -1,7 +1,7 @@
 import Foundation
 
 class TaskViewModel: ObservableObject {
-    @Published var tasks: [TaskModel] = [] {
+    @Published private(set) var tasks: [TaskModel] = [] {
         didSet {
             saveTasks()
         }
@@ -10,68 +10,83 @@ class TaskViewModel: ObservableObject {
     private let tasksKey = "tasks"
 
     init() {
-        getTasks()
+        loadTasks()
     }
 
-    // MARK: - Load from Storage
-    func getTasks() {
-        guard let data = UserDefaults.standard.data(forKey: tasksKey),
-              let savedItems = try? JSONDecoder().decode([TaskModel].self, from: data) else {
-            return
-        }
-        self.tasks = savedItems
-    }
+    // MARK: - Public API
 
-    // MARK: - Save to Storage
-    private func saveTasks() {
-        if let encoded = try? JSONEncoder().encode(tasks) {
-            UserDefaults.standard.set(encoded, forKey: tasksKey)
-        }
-    }
-
-    // MARK: - Create
-    func addTask(title: String) {
-        let newTask = TaskModel(title: title)
+    func addTask(title: String, date: Date? = nil) {
+        let newTask = TaskModel(title: title, scheduledDate: date)
         tasks.append(newTask)
     }
-
-    // MARK: - Delete
-    func deleteTask(at indexSet: IndexSet) {
-        tasks.remove(atOffsets: indexSet)
-    }
-
-    // MARK: - Toggle Completion
-    func toggleComplete(task: TaskModel) {
-        if let index = tasks.firstIndex(where: { $0.id == task.id }) {
-            tasks[index] = task.copy(isCompleted: !task.isCompleted)
-        }
-    }
-
-    // MARK: - Edit Task
+    
     func updateTask(_ updatedTask: TaskModel) {
         if let index = tasks.firstIndex(where: { $0.id == updatedTask.id }) {
             tasks[index] = updatedTask
         }
     }
 
-    // MARK: - Reorder Tasks
+    func toggleTaskCompletion(_ task: TaskModel) {
+        if let index = tasks.firstIndex(where: { $0.id == task.id }) {
+            tasks[index] = task.copy(isCompleted: !task.isCompleted)
+        }
+    }
+
+    func deleteTask(_ task: TaskModel) {
+        tasks.removeAll { $0.id == task.id }
+    }
+
     func moveTask(fromOffsets: IndexSet, toOffset: Int) {
         tasks.move(fromOffsets: fromOffsets, toOffset: toOffset)
     }
-
-    // MARK: - Filtered Lists
-    var activeTasks: [TaskModel] {
-        tasks.filter { !$0.isCompleted }
+    
+    func activeTasks(for date: Date) -> [TaskModel] {
+        tasks.filter { !$0.isCompleted && Calendar.current.isDate($0.scheduledDate ?? Date.distantPast, inSameDayAs: date) }
     }
 
-    var completedTasks: [TaskModel] {
-        tasks.filter { $0.isCompleted }
+    func completedTasks(for date: Date) -> [TaskModel] {
+        tasks.filter { $0.isCompleted && Calendar.current.isDate($0.scheduledDate ?? Date.distantPast, inSameDayAs: date) }
     }
 
-    func tasks(for date: Date) -> [TaskModel] {
-        tasks.filter {
-            guard let taskDate = $0.scheduledDate else { return false }
-            return Calendar.current.isDate(taskDate, inSameDayAs: date)
+
+    // MARK: - Filters
+
+    func filteredTasks(using filter: TaskFilter) -> [TaskModel] {
+        switch filter {
+        case .all:
+            return tasks
+        case .completed:
+            return tasks.filter { $0.isCompleted }
+        case .active:
+            return tasks.filter { !$0.isCompleted }
+        case .today:
+            return tasks.filter {
+                guard let date = $0.scheduledDate else { return false }
+                return Calendar.current.isDateInToday(date)
+            }
+        case .byDate(let date):
+            return tasks.filter {
+                guard let taskDate = $0.scheduledDate else { return false }
+                return Calendar.current.isDate(taskDate, inSameDayAs: date)
+            }
+        case .custom(let predicate):
+            return tasks.filter(predicate)
         }
+    }
+
+    // MARK: - Persistence
+
+    private func saveTasks() {
+        if let data = try? JSONEncoder().encode(tasks) {
+            UserDefaults.standard.set(data, forKey: tasksKey)
+        }
+    }
+
+    private func loadTasks() {
+        guard let data = UserDefaults.standard.data(forKey: tasksKey),
+              let decoded = try? JSONDecoder().decode([TaskModel].self, from: data) else {
+            return
+        }
+        self.tasks = decoded
     }
 }
