@@ -41,7 +41,6 @@ struct RootView: View {
                     .transition(.move(edge: .bottom))
                     .zIndex(3)
                 }
-                
                 // Floating Add Button
                 VStack {
                     Spacer()

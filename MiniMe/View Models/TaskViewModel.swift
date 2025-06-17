@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 class TaskViewModel: ObservableObject {
     @Published private(set) var tasks: [TaskModel] = [] {
@@ -28,7 +29,13 @@ class TaskViewModel: ObservableObject {
 
     func toggleTaskCompletion(_ task: TaskModel) {
         if let index = tasks.firstIndex(where: { $0.id == task.id }) {
-            tasks[index] = task.copy(isCompleted: !task.isCompleted)
+            let nowCompleted = !task.isCompleted
+            let newCompletedDate = nowCompleted ? Date() : nil
+
+            tasks[index] = task.copy(
+                isCompleted: nowCompleted,
+                completedDate: newCompletedDate
+            )
         }
     }
 
@@ -55,8 +62,12 @@ class TaskViewModel: ObservableObject {
         switch filter {
         case .all:
             return tasks
-        case .completed:
-            return tasks.filter { $0.isCompleted }
+        case .completed(let date):
+            return tasks.filter {
+                $0.isCompleted &&
+                $0.completedDate != nil &&
+                Calendar.current.isDate($0.completedDate!, inSameDayAs: date)
+            }
         case .active:
             return tasks.filter { !$0.isCompleted }
         case .today:
@@ -88,5 +99,18 @@ class TaskViewModel: ObservableObject {
             return
         }
         self.tasks = decoded
+    }
+}
+
+extension View {
+    func placeholder<Content: View>(
+        when shouldShow: Bool,
+        alignment: Alignment = .leading,
+        @ViewBuilder placeholder: () -> Content
+    ) -> some View {
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
     }
 }
