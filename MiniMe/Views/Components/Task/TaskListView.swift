@@ -12,6 +12,7 @@ struct TaskListView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 8) {
+                
                 ForEach(viewModel.filteredTasks(using: filter)) { task in
                     TaskRowView(
                         task: task,
@@ -20,10 +21,9 @@ struct TaskListView: View {
                         onToggleComplete: viewModel.toggleTaskCompletion
                     )
                 }
-
                 if allowsEditing {
                     HStack {
-                        TextField("New Task", text: $newTaskTitle)
+                        TextField("New Task...", text: $newTaskTitle)
                             .focused($isNewTaskFocused)
                             .onSubmit {
                                 let trimmed = newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -34,17 +34,6 @@ struct TaskListView: View {
                             }
                             .textFieldStyle(.plain)
                             .submitLabel(.done)
-
-                        Button {
-                            let trimmed = newTaskTitle.trimmingCharacters(in: .whitespacesAndNewlines)
-                            guard !trimmed.isEmpty else { return }
-                            viewModel.addTask(title: trimmed, date: selectedDate)
-                            newTaskTitle = ""
-                            isNewTaskFocused = true
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundColor(.blue)
-                        }
                     }
                     .padding(.vertical, 8)
                 }
@@ -53,7 +42,6 @@ struct TaskListView: View {
         }
     }
 }
-
 
 #Preview {
     ToDoListScreen()
