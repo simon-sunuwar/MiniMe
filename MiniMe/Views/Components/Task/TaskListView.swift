@@ -19,7 +19,8 @@ struct TaskListView: View {
                         isTitleEditable: isTitleEditable,
                         isTaskEdit: isTaskEdit,
                         onUpdate: viewModel.updateTask,
-                        onToggleComplete: viewModel.toggleTaskCompletion
+                        onToggleComplete: viewModel.toggleTaskCompletion,
+                        onDelete: { task in viewModel.deleteTask(task)}
                     )
                 }
                 if isTitleEditable {

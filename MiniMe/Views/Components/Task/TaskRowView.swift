@@ -6,6 +6,7 @@ struct TaskRowView: View {
     var isTaskEdit: Bool = false
     var onUpdate: (TaskModel) -> Void
     var onToggleComplete: (TaskModel) -> Void
+    var onDelete: (TaskModel) -> Void
     
 
     @State private var title: String
@@ -16,13 +17,15 @@ struct TaskRowView: View {
         isTitleEditable: Bool = true,
         isTaskEdit: Bool = false,
         onUpdate: @escaping (TaskModel) -> Void,
-        onToggleComplete: @escaping (TaskModel) -> Void
+        onToggleComplete: @escaping (TaskModel) -> Void,
+        onDelete: @escaping (TaskModel) -> Void
     ) {
         self.task = task
         self.isTitleEditable = isTitleEditable
         self.isTaskEdit = isTaskEdit
         self.onUpdate = onUpdate
         self.onToggleComplete = onToggleComplete
+        self.onDelete = onDelete
         _title = State(initialValue: task.title)
     }
 
@@ -57,6 +60,9 @@ struct TaskRowView: View {
                 Image(systemName: "trash")
                     .foregroundColor(.gray)
                     .padding(.leading, 8)
+                    .onTapGesture {
+                        onDelete(task)
+                    }
             }
 
             Spacer()
@@ -79,7 +85,8 @@ struct TaskRowView: View {
         isTitleEditable: true,
         isTaskEdit: true,
         onUpdate: { _ in },
-        onToggleComplete: { _ in }
+        onToggleComplete: { _ in },
+        onDelete: { _ in }
     )
 }
 
