@@ -4,6 +4,8 @@ struct ToDoListScreen: View {
     private let daysRange = (-10...10)
     @State private var currentIndex = 10 // Today is at index 10
     @State private var datePickerSelection = Date()
+    
+    @State private var isTaskEdit = false
 
     var body: some View {
         VStack {
@@ -33,31 +35,38 @@ struct ToDoListScreen: View {
                             }
                         }
                     }
-
             }
             .padding(.horizontal)
-
+            
+            HStack {
+                Button(action: {
+                    isTaskEdit.toggle()
+                }) {
+                    Label(isTaskEdit ? "Done" : "Edit", systemImage: isTaskEdit ? "checkmark.circle" : "pencil")
+                        .foregroundColor(.blue)
+                }
+            }
+            
             // Swipeable Task Pages
             TabView(selection: $currentIndex) {
                 ForEach(Array(daysRange.enumerated()), id: \.offset) { offset, dayOffset in
                     let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: Date()) ?? Date()
-
                     VStack(spacing: 12) {
                         TaskListView(
                             filter: .custom { task in
                                 guard let scheduled = task.scheduledDate else { return false }
                                 return Calendar.current.isDate(scheduled, inSameDayAs: date) && !task.isCompleted
                             },
-                            allowsEditing: true
+                            isTitleEditable: true,
+                            isTaskEdit: isTaskEdit
                         )
-
                         Text("Completed")
                             .font(.headline)
                             .padding(.top)
 
                         TaskListView(
                             filter: .completed(for: date),
-                            allowsEditing: false
+                            isTitleEditable: false
                         )
                     }
                     .padding()
@@ -75,3 +84,9 @@ struct ToDoListScreen: View {
         Calendar.current.date(byAdding: .day, value: daysRange.lowerBound + currentIndex, to: Date()) ?? Date()
     }
 }
+
+#Preview {
+    ToDoListScreen()
+        .environmentObject(TaskViewModel()) // Provide dummy model for preview
+}
+
