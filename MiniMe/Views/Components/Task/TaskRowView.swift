@@ -2,7 +2,8 @@ import SwiftUI
 
 struct TaskRowView: View {
     let task: TaskModel
-    var isEditable: Bool = true
+    var isTitleEditable: Bool = true
+    var isTaskEdit: Bool = false
     var onUpdate: (TaskModel) -> Void
     var onToggleComplete: (TaskModel) -> Void
     
@@ -12,12 +13,14 @@ struct TaskRowView: View {
 
     init(
         task: TaskModel,
-        isEditable: Bool = true,
+        isTitleEditable: Bool = true,
+        isTaskEdit: Bool = false,
         onUpdate: @escaping (TaskModel) -> Void,
         onToggleComplete: @escaping (TaskModel) -> Void
     ) {
         self.task = task
-        self.isEditable = isEditable
+        self.isTitleEditable = isTitleEditable
+        self.isTaskEdit = isTaskEdit
         self.onUpdate = onUpdate
         self.onToggleComplete = onToggleComplete
         _title = State(initialValue: task.title)
@@ -25,12 +28,10 @@ struct TaskRowView: View {
 
     var body: some View {
         HStack {
-            if isEditable {
+            if isTitleEditable {
                 TextField("", text: $title, onCommit: {
                     let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
-                    
                     if trimmed.isEmpty {
-                        // Revert visually and functionally
                         DispatchQueue.main.async {
                             title = task.title
                         }
@@ -39,26 +40,44 @@ struct TaskRowView: View {
                     }
                 })
                 .textFieldStyle(.plain)
+                
             } else {
                 Text(task.title)
                     .foregroundColor(task.isCompleted ? .gray : .primary)
             }
-            Spacer()
-            Button(action: {
-                onToggleComplete(task)
-            }) {
-                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(task.isCompleted ? .green : .gray)
+
+            // 👇 This appears only in edit mode
+            if isTaskEdit {
+                Image(systemName: "pencil")
+                    .foregroundColor(.gray)
+                    .padding(.leading, 8)
+                Image(systemName: "line.horizontal.3")
+                    .foregroundColor(.gray)
+                    .padding(.leading, 8)
+                Image(systemName: "trash")
+                    .foregroundColor(.gray)
+                    .padding(.leading, 8)
             }
+
+            Spacer()
+            // ✅ Only show this button when not in edit mode
+               if !isTaskEdit {
+                   Button(action: {
+                       onToggleComplete(task)
+                   }) {
+                       Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                           .foregroundColor(task.isCompleted ? .green : .gray)
+                   }
+               }
         }
-        .padding(.vertical, 4)
     }
 }
 
 #Preview {
     TaskRowView(
-        task: TaskModel(id: UUID(), title: "Sample Task", isCompleted: true),
-        isEditable: true,
+        task: TaskModel(id: UUID(), title: "Sample Task", isCompleted: false),
+        isTitleEditable: true,
+        isTaskEdit: true,
         onUpdate: { _ in },
         onToggleComplete: { _ in }
     )

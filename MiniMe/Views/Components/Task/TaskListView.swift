@@ -3,7 +3,8 @@ import SwiftUI
 struct TaskListView: View {
     @EnvironmentObject var viewModel: TaskViewModel
     var filter: TaskFilter
-    var allowsEditing: Bool = true
+    var isTitleEditable: Bool = true
+    var isTaskEdit: Bool = false
 
     @State private var newTaskTitle: String = ""
     @FocusState private var isNewTaskFocused: Bool
@@ -12,16 +13,16 @@ struct TaskListView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 8) {
-                
                 ForEach(viewModel.filteredTasks(using: filter)) { task in
                     TaskRowView(
                         task: task,
-                        isEditable: allowsEditing,
+                        isTitleEditable: isTitleEditable,
+                        isTaskEdit: isTaskEdit,
                         onUpdate: viewModel.updateTask,
                         onToggleComplete: viewModel.toggleTaskCompletion
                     )
                 }
-                if allowsEditing {
+                if isTitleEditable {
                     HStack {
                         TextField("New Task...", text: $newTaskTitle)
                             .focused($isNewTaskFocused)
